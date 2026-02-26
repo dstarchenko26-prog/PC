@@ -8,6 +8,17 @@ import java.util.BitSet;
 public class ParBucketSelect {
 
     public static SelectionResult select(int[] array, int k) {
+
+        //
+        int threads;
+        if (Thread.currentThread() instanceof java.util.concurrent.ForkJoinWorkerThread) {
+            threads = ((java.util.concurrent.ForkJoinWorkerThread) Thread.currentThread())
+                    .getPool().getParallelism();
+        } else {
+            threads = 1;
+        }
+        System.out.print("\nВиділено потоків: " + threads);
+
         long currentMin = Arrays.stream(array).parallel().min().orElse(Integer.MAX_VALUE);
         long currentMax = Arrays.stream(array).parallel().max().orElse(Integer.MIN_VALUE);
 

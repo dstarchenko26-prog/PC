@@ -17,7 +17,7 @@ public class Main {
 
         while (run) {
             System.out.print("""
-                    
+
                     === Меню ===
                     1 - Згенерувати набір даних
                     2 - Вивести на екран масив
@@ -25,6 +25,7 @@ public class Main {
                     4 - Прочитати з файлу
                     5 - Послідовний метод
                     6 - Паралельний метод
+                    7 - Тестування
                     0 - Вихід
                     Оберіть дію:\s""");
 
@@ -54,6 +55,9 @@ public class Main {
                         break;
                     case 6:
                         select.par(array);
+                        break;
+                    case 7:
+                        select.benchmark(array);
                         break;
                     default:
                         System.out.println("Невідома команда. Будь ласка, оберіть число від 0 до 7.");
