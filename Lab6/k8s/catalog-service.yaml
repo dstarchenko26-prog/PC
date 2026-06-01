@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: catalog-deployment
+spec:
+  replicas: 2 # Вимога лабораторної роботи
+  selector:
+    matchLabels:
+      app: catalog
+  template:
+    metadata:
+      labels:
+        app: catalog
+    spec:
+      containers:
+        - name: catalog-service
+          image: denysstarchenko/catalog-service:latest
+          imagePullPolicy: IfNotPresent # Обов'язково для локальних образів!
+          ports:
+            - containerPort: 8082
+          env:
+            # 1. СЕКРЕТИ
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: db-password
+
+            # 2. ХОСТИ ТА КОНФІГУРАЦІЇ
+            - name: DB_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: db-host
+            - name: AUTH_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: auth-host
+            - name: REDIS_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: redis-host
+
+            # 3. ДИНАМІЧНИЙ URL (використовуємо назву бази з ConfigMap)
+            - name: SPRING_DATASOURCE_URL
+              value: "jdbc:postgresql://postgres-service:5432/lab4_catalog_db"
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "250m"
+            limits:
+              memory: "1024Mi"
+              cpu: "500m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: catalog-service
+spec:
+  type: ClusterIP
+  selector:
+    app: catalog
+  ports:
+    - protocol: TCP
+      port: 8082
+      targetPort: 8082

@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: order-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: order
+  template:
+    metadata:
+      labels:
+        app: order
+    spec:
+      containers:
+        - name: order-service
+          image: denysstarchenko/order-service:latest
+          imagePullPolicy: IfNotPresent # Обов'язково для локальних образів!
+          ports:
+            - containerPort: 8083
+          env:
+            # СЕКРЕТИ[cite: 2]
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: db-password
+
+            # ХОСТИ[cite: 2]
+            - name: DB_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: db-host
+            - name: AUTH_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: auth-host
+            - name: CATALOG_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: catalog-host
+
+            # URL БАЗИ[cite: 2]
+            - name: SPRING_DATASOURCE_URL
+              value: "jdbc:postgresql://postgres-service:5432/lab4_order_db"
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "250m"
+            limits:
+              memory: "1024Mi"
+              cpu: "500m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: order-service
+spec:
+  type: ClusterIP
+  selector:
+    app: order
+  ports:
+    - protocol: TCP
+      port: 8083
+      targetPort: 8083

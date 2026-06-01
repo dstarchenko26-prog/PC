@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+data:
+  db-host: "postgres-service"
+  db-user: "postgres" # ДОДАЙ ЦЕЙ РЯДОК
+  auth-host: "auth-service"
+  catalog-host: "catalog-service"
+  order-host: "order-service"
+  redis-host: "redis-service"
+  auth-db-name: "lab4_auth_db"
+  catalog-db-name: "lab4_catalog_db"
+  jwt-expiration: "86400000"
